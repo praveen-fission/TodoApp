@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>JS Project</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Kaushan+Script&family=Poppins:ital,wght@1,600&display=swap">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    #vis1 {
+      visibility: hidden;
+    }
+  </style>
+  <script src="Practice1.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <a id="addtask" class="mt-5 btn btn-success" role="button" href="Practice2.html" target="_blank">Add Task</a>
+    <table class="table">
+      <thead id="noelements">
+        <tr>
+          <th>Name of the Task</th>
+          <th>Date</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="table">
+
+      </tbody>
+    </table>
+    <div class="form-group mt-5 container-fluid " id="vis1">
+      <label>Enter Your Task Name: </label>
+      <input id="i1" type="text" class="form-control" placeholder="TaskName" value="">
+      <label>Time:</label>
+      <input id="i2" type="text" class="form-control" placeholder="Time">
+      <label>status</label>
+      <select id="i3">
+        <option value="DONE">DONE</option>
+        <option value="PENDING">PENDING</option>
+      </select>
+      <button onclick="editTask()" class="btn btn-secondary" id="SC">Save Changes</button>
+    </div>
+  </div>
+  <script>
+
+    let myPromise = new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", "http://34.71.224.0:8080/api/tasks", true);
+      xhr.setRequestHeader('Authorization', "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMSIsImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MTc0MzMzOTl9._VY8Ao2E4a4C5_3aWpRh3HzPBJPlQ4SWdzAlMObp89r3rEx2jQXs-x_Lz7ozNDZuIdxI9zuExRUFYCQaYwfRUw");
+      xhr.withCredentials = true;
+      xhr.onload = function () {
+        var data = JSON.parse(xhr.responseText);
+        if (xhr.status >= 200 && xhr.status < 400) {
+          resolve(data);
+        }
+        else {
+          reject("Not found");
+        }
+      }
+      xhr.send();
+    })
+    myPromise.then(function (value) {
+      if (value.length === 0) {
+        document.getElementById("noelements").innerHTML = "No Elements";
+      }
+      else {
+        for (var i = 0; i < value.length; i++) {
+          var table1 = document.getElementById("table");
+          var row1 = table1.insertRow(0);
+          var cell1 = row1.insertCell(0);
+          var cell2 = row1.insertCell(1);
+          var cell3 = row1.insertCell(2);
+          var cell4 = row1.insertCell(3);
+          var cell5 = row1.insertCell(4);
+          cell1.innerHTML = value[i]['name'];
+          cell3.innerHTML = value[i]['status'];
+          cell2.innerHTML = value[i]['expiryDate'];
+          var a = document.createElement('a');
+          var link = document.createTextNode("EDIT");
+          var id = value[i]['id'];
+          var name = value[i]['name'];
+          var expiryDate = value[i]['expiryDate'];
+          var status = value[i]['status'];
+          a.id = id;
+          a.name = name;
+          a.expiryDate = expiryDate;
+          a.status = status;
+          a.appendChild(link);
+          a.onclick = function () {
+            document.getElementById("vis1").style.visibility = "visible";
+            // documnet.getElementById("vis1").addClass("form-group mt-5 "+);
+            document.getElementById("i1").value = this.name;
+            document.getElementById("i2").value = this.expiryDate;
+            document.getElementById("i3").value = this.status;
+            document.getElementById("SC").value = this.id;
+          }
+          cell4.appendChild(a);
+          //delete button
+          var a1 = document.createElement('a');
+          a1.id = id;
+          var link = document.createTextNode("DELETE");
+          a1.appendChild(link);
+          console.log("SSS");
+          a1.onclick = function (obj) {
+            console.log(this);
+            var xhr = new XMLHttpRequest();
+            xhr.open("DELETE", "http://34.71.224.0:8080/api/tasks/" + this.id, true);
+            xhr.setRequestHeader('Authorization', "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMSIsImF1dGgiOiJST0xFX1VTRVIiLCJleHAiOjE2MTc0MzMzOTl9._VY8Ao2E4a4C5_3aWpRh3HzPBJPlQ4SWdzAlMObp89r3rEx2jQXs-x_Lz7ozNDZuIdxI9zuExRUFYCQaYwfRUw");
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.withCredentials = true;
+            xhr.onload = function () {
+              if (xhr.status >= 200 && xhr.status < 400) {
+                window.location.replace('pratice1.html');
+                console.log("Success");
+              }
+              else {
+                console.log("Error");
+              }
+            }
+            xhr.send();
+          };
+          console.log("YYYYY")
+          cell5.appendChild(a1);
+        }
+
+      }
+      console.log(value);
+    })
+  </script>
+</body>
+
+</html>
